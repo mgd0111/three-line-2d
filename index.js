@@ -2,8 +2,12 @@ var inherits = require('inherits');
 var getNormals = require('polyline-normals');
 var VERTS_PER_POINT = 2;
 
-module.exports = function createLineMesh (THREE) {
-  function LineMesh (path, opt) {
+module.exports = function createLineMesh(THREE) {
+  let setAttribute = 'addAttribute'
+  if (THREE.REVISION > 110) {
+    setAttribute = 'setAttribute'
+  }
+  function LineMesh(path, opt) {
     if (!(this instanceof LineMesh)) {
       return new LineMesh(path, opt);
     }
@@ -18,16 +22,16 @@ module.exports = function createLineMesh (THREE) {
 
     opt = opt || {};
 
-    this.addAttribute('position', new THREE.BufferAttribute(undefined, 3));
-    this.addAttribute('lineNormal', new THREE.BufferAttribute(undefined, 2));
-    this.addAttribute('lineMiter', new THREE.BufferAttribute(undefined, 1));
+    this[setAttribute]('position', new THREE.BufferAttribute(undefined, 3));
+    this[setAttribute]('lineNormal', new THREE.BufferAttribute(undefined, 2));
+    this[setAttribute]('lineMiter', new THREE.BufferAttribute(undefined, 1));
     if (opt.distances) {
-      this.addAttribute('lineDistance', new THREE.BufferAttribute(undefined, 1));
+      this[setAttribute]('lineDistance', new THREE.BufferAttribute(undefined, 1));
     }
     if (typeof this.setIndex === 'function') {
       this.setIndex(new THREE.BufferAttribute(undefined, 1));
     } else {
-      this.addAttribute('index', new THREE.BufferAttribute(undefined, 1));
+      this[setAttribute]('index', new THREE.BufferAttribute(undefined, 1));
     }
     this.update(path, opt.closed);
   }
@@ -52,7 +56,7 @@ module.exports = function createLineMesh (THREE) {
 
     var indexCount = Math.max(0, (path.length - 1) * 6);
     if (!attrPosition.array ||
-        (path.length !== attrPosition.array.length / 3 / VERTS_PER_POINT)) {
+      (path.length !== attrPosition.array.length / 3 / VERTS_PER_POINT)) {
       var count = path.length * VERTS_PER_POINT;
       attrPosition.array = new Float32Array(count * 3);
       attrNormal.array = new Float32Array(count * 2);
